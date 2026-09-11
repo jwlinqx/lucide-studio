@@ -466,7 +466,7 @@ const PatternMatches = ({
           width="100%"
           height="100%"
         />
-        {patternMatchesWithBounds.map(({ patternName, bounds }, idx) => (
+        {patternMatchesWithBounds.map(({ label, bounds }, idx) => (
           <text
             key={idx}
             fontSize={0.75}
@@ -474,7 +474,7 @@ const PatternMatches = ({
             dominantBaseline="middle"
           >
             <textPath href={`#svg-preview-bounding-box-${idx}`}>
-              {patternName} {Math.round(bounds.width + 2)}x
+              {label} {Math.round(bounds.width + 2)}x
               {Math.round(bounds.height + 2)}
             </textPath>
           </text>
@@ -489,11 +489,11 @@ const PatternMatches = ({
           width="100%"
           height="100%"
         />
-        {patternMatchesWithBounds.map(({ patternName, bounds }, idx) => (
+        {patternMatchesWithBounds.map(({ label, bounds }, idx) => (
           <>
             <text fontSize={0.75} strokeWidth={0.4} dominantBaseline="middle">
               <textPath href={`#svg-preview-bounding-box-${idx}`}>
-                {patternName}.{Math.round(bounds.width + 2)}.svg
+                {label}.{Math.round(bounds.width + 2)}.svg
               </textPath>
             </text>
             <path
@@ -510,7 +510,7 @@ const PatternMatches = ({
           strokeWidth={props.strokeWidth}
           mask="url(#svg-preview-bounding-box-path-mask)"
           d={patternMatchesWithBounds
-            .filter(({ patternName }) => patternName.length <= 16)
+            .filter(({ severity }) => severity !== "warning")
             .map(
               ({ bounds }) =>
                 `M${bounds.x} ${bounds.y - 1}h${bounds.width + 0.5}a.5 .5 0 0 1 .5 .5v${bounds.height + 1}a.5 .5 0 0 1 -.5 .5h-${bounds.width + 1}a.5 .5 0 0 1 -.5 -.5v-${bounds.height + 1}a.5 .5 0 0 1 .5 -.5L${bounds.x} ${bounds.y - 1}`,
@@ -522,20 +522,20 @@ const PatternMatches = ({
           mask="url(#svg-preview-bounding-box-path-mask)"
           stroke="red"
           d={patternMatchesWithBounds
-            .filter(({ patternName }) => patternName.length > 16)
+            .filter(({ severity }) => severity === "warning")
             .map(
               ({ bounds }) =>
                 `M${bounds.x} ${bounds.y - 1}h${bounds.width + 0.5}a.5 .5 0 0 1 .5 .5v${bounds.height + 1}a.5 .5 0 0 1 -.5 .5h-${bounds.width + 1}a.5 .5 0 0 1 -.5 -.5v-${bounds.height + 1}a.5 .5 0 0 1 .5 -.5L${bounds.x} ${bounds.y - 1}`,
             )
             .join(" ")}
         />
-        {patternMatchesWithBounds.map(({ patternName, paths, bounds }, idx) => (
+        {patternMatchesWithBounds.map(({ label, severity, paths, bounds }, idx) => (
           <text
             key={idx}
-            fill={patternName.length > 16 ? "red" : props.stroke}
+            fill={severity === "warning" ? "red" : props.stroke}
             fontSize={0.75}
             strokeWidth={0.06}
-            stroke={patternName.length > 16 ? "red" : undefined}
+            stroke={severity === "warning" ? "red" : undefined}
             dominantBaseline="middle"
             fillOpacity={props.strokeOpacity}
           >
@@ -544,7 +544,7 @@ const PatternMatches = ({
               className="svg-preview-bounding-box-label-path"
               data-ids={paths.map((p) => `${p.c.id}-${p.c.idx}`).join(" ")}
             >
-              {patternName} {Math.round(bounds.width + 2)}x
+              {label} {Math.round(bounds.width + 2)}x
               {Math.round(bounds.height + 2)}
             </textPath>
           </text>
@@ -780,7 +780,15 @@ export const SvgPreview = React.forwardRef<
   } & React.SVGProps<SVGSVGElement>
 >(
   (
-    { src, children, height = 24, width = 24, showGrid = false, ...props },
+    {
+      src,
+      children,
+      height = 24,
+      width = 24,
+      showGrid = false,
+      strokeWidth = 2,
+      ...props
+    },
     ref,
   ) => {
     const subGridSize =
@@ -793,6 +801,19 @@ export const SvgPreview = React.forwardRef<
           : 0;
     const paths = typeof src === "string" ? getPaths(src) : src;
     const patternMatches = mGetPatternMatches(paths);
+
+    // `gapOverlap` in manifold-patterns.json reclassifies the gap/margin lint
+    // for collisions *within* a matched pattern: "allow" hides it (shapes that
+    // interlock by design, e.g. 3d), "warn" turns it yellow (letter and number
+    // glyphs, where crowded strokes are a property of the type, not a defect).
+    const gapGroupsFor = (policy: "allow" | "warn") =>
+      patternMatches
+        .filter(({ gapOverlap }) => gapOverlap === policy)
+        .map(({ paths: matchedPaths }) => [
+          ...new Set(matchedPaths.map(({ c }) => c.id)),
+        ]);
+    const gapExemptGroups = gapGroupsFor("allow");
+    const gapWarnGroups = gapGroupsFor("warn");
 
     const darkModeCss = `
   .dark .svg
@@ -812,7 +833,7 @@ export const SvgPreview = React.forwardRef<
         viewBox={`0 0 ${width} ${height}`}
         fill="none"
         stroke="currentColor"
-        strokeWidth={2}
+        strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
         {...props}
@@ -839,6 +860,9 @@ export const SvgPreview = React.forwardRef<
         />
         <GapViolationHighlight
           paths={paths}
+          exemptGroups={gapExemptGroups}
+          warnGroups={gapWarnGroups}
+          warnStroke="#ffca3a"
           stroke="red"
           strokeOpacity={0.75}
           strokeWidth={4}

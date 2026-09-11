@@ -2,7 +2,7 @@
 import React from "react";
 import { useEffect, useRef, useState } from "react";
 import { SvgPreview } from "./SvgPreview";
-import { getPaths, getNodes, Path, Point } from "@/lib/get-paths";
+import { getPaths, getNodes, Path, PathArc, Point } from "@/lib/get-paths";
 import throttle from "lodash/throttle";
 import round from "lodash/round";
 import debounce from "lodash/debounce";
@@ -15,12 +15,41 @@ import { getPathBounds } from "@/lib/get-path-bounds";
 const getDistance = (a: Point, b: Point) =>
   Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 
+// Visual-only placement helper for the radius handle: the point on the
+// arc's rim at its angular midpoint. This does NOT feed into any drag
+// math (see onMouseDown/onMouseMove above, which key off className and
+// raw mouse deltas) -- it only decides where the hit dot is drawn.
+const arcMidpoint = (path: PathArc): Point => {
+  const circle = path.circle;
+  if (!circle) return path.prev;
+  const { x: cx, y: cy, r } = circle;
+  const a1 = Math.atan2(path.prev.y - cy, path.prev.x - cx);
+  const a2 = Math.atan2(path.next.y - cy, path.next.x - cx);
+  let diff = a2 - a1;
+  const sweep = path.c.sweepFlag;
+  if (sweep) {
+    if (diff < 0) diff += 2 * Math.PI;
+  } else {
+    if (diff > 0) diff -= 2 * Math.PI;
+  }
+  // Degenerate case: prev and next coincide (a near-full circle). Fall
+  // back to a half-turn in the swept direction so the handle still lands
+  // on the rim rather than collapsing onto prev.
+  if (Math.abs(diff) < 1e-9) {
+    diff = sweep ? 2 * Math.PI : -2 * Math.PI;
+  }
+  const mid = a1 + diff / 2;
+  return { x: cx + r * Math.cos(mid), y: cy + r * Math.sin(mid) };
+};
+
 export const SvgEditor = ({
   src,
   onChange,
+  strokeWidth = 2,
 }: {
   src: string;
   onChange: (svg: string) => unknown;
+  strokeWidth?: number;
 }) => {
   const [selected, onSelectionChange] = useSelection();
   const [paths, setPaths] = useState<Path[]>(() => getPaths(src));
@@ -410,6 +439,15 @@ export const SvgEditor = ({
           )[dragTargetRef.current.selectionType],
         );
 
+        // When an arc (svg-editor-circle) is grabbed as part of a
+        // multi-selection, translate the whole selection rigidly instead of
+        // tearing the arc out of the group.
+        const effectiveSelectionType =
+          dragTargetRef.current.selectionType === "svg-editor-circle" &&
+          selected.length > 1
+            ? "svg-editor-path"
+            : dragTargetRef.current.selectionType;
+
         for (const {
           c: { id, idx },
         } of selected) {
@@ -420,7 +458,7 @@ export const SvgEditor = ({
           const movedPath = movedPaths[i];
           const scopedPath = scopedPaths[i];
 
-          switch (dragTargetRef.current.selectionType) {
+          switch (effectiveSelectionType) {
             case "svg-preview-bounding-box-label":
             case "svg-editor-path": {
               movedPath.prev.x = scopedPath.prev.x + snapDelta.x;
@@ -761,10 +799,11 @@ export const SvgEditor = ({
         src={paths}
         height={height}
         width={width}
+        strokeWidth={strokeWidth}
         className="h-full w-full"
       >
-        <filter id="shadow" color-interpolation-filters="sRGB">
-          <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.5" />
+        <filter id="shadow" colorInterpolationFilters="sRGB">
+          <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.5" />
         </filter>
         <mask id="svg-editor-opacity-mask" maskUnits="userSpaceOnUse">
           <rect
@@ -824,7 +863,11 @@ export const SvgEditor = ({
                 <path
                   className={`svg-editor-${path.circle.tangentIntersection ? "radius" : "circle"} svg-editor-segment-${path.c.id}-${path.c.idx}`}
                   strokeWidth={1.5}
-                  d={`M${path.circle.x} ${path.circle.y}h.01`}
+                  d={
+                    path.circle.tangentIntersection
+                      ? (({ x, y }) => `M${x} ${y}h.01`)(arcMidpoint(path))
+                      : `M${path.circle.x} ${path.circle.y}h.01`
+                  }
                 />
               )}
               {path.type === "curve" && path.cp1 && (
@@ -843,6 +886,51 @@ export const SvgEditor = ({
               )}
             </React.Fragment>
           ))}
+        </g>
+        {/* Decoration-only layer: clarifies the arc handle affordance for
+            the current selection. Rendered after the hit-area group so it
+            sits visually on top, but pointer-events are disabled throughout
+            so it never intercepts drags. Blue = moves the arc, amber =
+            reshapes its radius. */}
+        <g pointerEvents="none">
+          {selected.map(({ c: { id, idx } }, i) => {
+            const path = paths.find((p) => p.c.id === id && p.c.idx === idx);
+            if (!path || path.type !== "arc" || !path.circle) return null;
+            const center = path.circle;
+            const rim = arcMidpoint(path);
+            return (
+              <React.Fragment key={i}>
+                <line
+                  x1={center.x}
+                  y1={center.y}
+                  x2={rim.x}
+                  y2={rim.y}
+                  stroke="#fbbf24"
+                  strokeOpacity={0.6}
+                  strokeWidth={0.1}
+                  pointerEvents="none"
+                />
+                <circle
+                  cx={rim.x}
+                  cy={rim.y}
+                  r={0.3}
+                  fill="#fbbf24"
+                  stroke="white"
+                  strokeWidth={0.1}
+                  pointerEvents="none"
+                />
+                <circle
+                  cx={center.x}
+                  cy={center.y}
+                  r={0.3}
+                  fill="#60a5fa"
+                  stroke="white"
+                  strokeWidth={0.1}
+                  pointerEvents="none"
+                />
+              </React.Fragment>
+            );
+          })}
         </g>
       </SvgPreview>
     </>

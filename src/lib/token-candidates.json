@@ -1,0 +1,167 @@
+[
+  {
+    "hex": "#c8a879",
+    "tentativeName": "tan",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.yellow.275",
+    "deltaE": 10.53,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#5b4c44",
+    "tentativeName": "umber",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.grey.550",
+    "deltaE": 8.54,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#3d342f",
+    "tentativeName": "bark",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.grey.650",
+    "deltaE": 5.82,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#020a91",
+    "tentativeName": "deep-indigo",
+    "why": "Improvised for Bleuy mascot artwork (sad-expression accent); no deep blue or indigo ramp stop exists in LINQX or XIQ primitives at this saturation.",
+    "uses": ["Bleuy-sad.svg"],
+    "nearestToken": "Data Viz Ramps/colors.cornflower.725",
+    "deltaE": 5.78,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#a89d97",
+    "tentativeName": "taupe",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.grey.300",
+    "deltaE": 5.57,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#60b782",
+    "tentativeName": "jade",
+    "why": "Improvised for Bleuy mascot hat and XIQ logo artwork; no green-teal ramp stop exists in LINQX or XIQ primitives at this saturation.",
+    "uses": ["Bleuy - Hat.svg", "xiq-logo-light.svg", "xiq-logo.svg"],
+    "nearestToken": "Data Viz Ramps/colors.veridian.375",
+    "deltaE": 5.38,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#50c1c5",
+    "tentativeName": "turquoise",
+    "why": "Improvised for Bleuy mascot hat and XIQ logo artwork; no turquoise ramp stop exists in LINQX or XIQ primitives at this saturation.",
+    "uses": ["Bleuy - Hat.svg", "xiq-logo-light.svg", "xiq-logo.svg"],
+    "nearestToken": "Data Viz Ramps/colors.turquoise.300",
+    "deltaE": 4.80,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#0f36b2",
+    "tentativeName": "royal-blue",
+    "why": "Improvised for Bleuy mascot artwork (sad-expression accent); no blue ramp stop exists in LINQX or XIQ primitives at this saturation.",
+    "uses": ["Bleuy-sad.svg"],
+    "nearestToken": "Data Viz Ramps/colors.cornflower.625",
+    "deltaE": 4.45,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#885823",
+    "tentativeName": "rust",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.gold.575",
+    "deltaE": 4.41,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#56bdab",
+    "tentativeName": "teal",
+    "why": "Improvised for Bleuy mascot hat and XIQ logo artwork; no teal ramp stop exists in LINQX or XIQ primitives at this saturation.",
+    "uses": ["Bleuy - Hat.svg", "xiq-logo-light.svg", "xiq-logo.svg"],
+    "nearestToken": "Data Viz Ramps/colors.turquoise.300",
+    "deltaE": 4.40,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#bc7d2c",
+    "tentativeName": "ochre",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.gold.425",
+    "deltaE": 4.29,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#f5e3bd",
+    "tentativeName": "cream",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.gold.125",
+    "deltaE": 4.17,
+    "firstSeen": "2026-08-17"
+  },
+  {
+    "hex": "#e2dad5",
+    "tentativeName": "sand",
+    "why": "Improvised for Bleuy mascot artwork; no brown or earth ramp exists in LINQX or XIQ primitives.",
+    "uses": [
+      "Bleuy - Hat.svg",
+      "Bleuy Default.svg",
+      "Bleuy-asleep.svg",
+      "Bleuy-eyes-right.svg",
+      "Bleuy-sad.svg"
+    ],
+    "nearestToken": "Data Viz Ramps/colors.grey.100",
+    "deltaE": 4.07,
+    "firstSeen": "2026-08-17"
+  }
+]
