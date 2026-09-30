@@ -45,6 +45,7 @@ Jonathen forked jguddas/lucide-studio (clone is complete at upstream HEAD `753b4
 - Built-in templates: drag-drop or click-to-add into the editor, plus a template previewer: research (requested 2026-09-11)
 - Searchable icon browser in the preview, sectioned: current icons (lucide + custom folders), rejected (rejected folder), templates: research (requested 2026-09-11)
 - Collision detection: when an added modifier would collide with existing geometry, suggest a tweak that passes guidelines; modifiers only, not other templates: research (requested 2026-09-11)
+- Modifier application (revamped studio.lucide.dev promises applying modifiers + style modes; Manifold style stays the base, but one-click apply-modifier-to-current-icon is wanted): research (requested 2026-09-24; upstream repo archived 2026-09-19 at 224 commits, so this must be rebuilt, never merged)
 
 ## Files touched
 
