@@ -10,6 +10,7 @@ import {
   CircleDotIcon,
   CopyIcon,
   Grid2x2Icon,
+  RotateCwIcon,
   ScissorsIcon,
   Trash2Icon,
   TypeOutlineIcon,
@@ -32,7 +33,8 @@ import { toast } from "sonner";
 import { cutOut } from "@/lib/cut-out";
 import { cut } from "@/lib/cut";
 import { useSession } from "next-auth/react";
-import { INode } from "svgson";
+import { INode, parseSync } from "svgson";
+import camelCase from "lodash/camelCase";
 import { nodesToSvg } from "@/lib/nodes-to-svg";
 import { pathToPathNode } from "@/lib/path-to-path-node";
 
@@ -41,7 +43,7 @@ interface IconEditorProps {
   onChange: (value: string) => void;
 }
 
-type PreviewMode = "1" | "2" | "3" | "pixelated";
+type PreviewMode = "1" | "2" | "3" | "pixelated" | "rotated";
 
 const PREVIEW_OPTIONS: { value: PreviewMode; label: string; title: string }[] =
   [
@@ -53,7 +55,72 @@ const PREVIEW_OPTIONS: { value: PreviewMode; label: string; title: string }[] =
       label: "Pixel",
       title: "Pixelated (native 1x raster preview)",
     },
+    {
+      value: "rotated",
+      label: "Rotated",
+      title: "Rotated 90° — check how the icon reads at other orientations",
+    },
   ];
+
+const toReactProps = (attributes: Record<string, string>) =>
+  Object.fromEntries(
+    Object.entries(attributes).map(([key, val]) => [
+      key === "class"
+        ? "className"
+        : /^(xmlns|xlink|data-|aria-)/.test(key)
+          ? key
+          : camelCase(key),
+      val,
+    ]),
+  );
+
+const renderNode = (node: INode, key: number): React.ReactNode =>
+  React.createElement(
+    node.name,
+    { ...toReactProps(node.attributes), key },
+    ...(node.children ?? []).map(renderNode),
+  );
+
+// Renders the current SVG with its content wrapped in a 90 degree rotation
+// about the canvas center. Stays inline SVG (currentColor resolves with the
+// theme, no rasterizing). Non-interactive; replaces the editor while active.
+const RotatedPreview = ({ value }: { value: string }) => {
+  let root: INode | undefined;
+  try {
+    root = parseSync(value);
+  } catch {
+    root = undefined;
+  }
+  if (!root || root.name !== "svg") return null;
+  const width = parseFloat(root.attributes.width ?? "24") || 24;
+  const height = parseFloat(root.attributes.height ?? "24") || 24;
+  const {
+    xmlns,
+    width: _w,
+    height: _h,
+    viewBox,
+    ...rootAttributes
+  } = toReactProps(root.attributes);
+  return (
+    <div className="flex aspect-square h-full w-full items-center justify-center rounded-md">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...rootAttributes}
+        viewBox={viewBox ?? `0 0 ${width} ${height}`}
+        className="h-full w-full"
+      >
+        <g transform={`rotate(90 ${width / 2} ${height / 2})`}>
+          {(root.children ?? []).map(renderNode)}
+        </g>
+      </svg>
+    </div>
+  );
+};
 
 // Renders the current SVG rasterized at its native pixel size, then scaled up
 // with `image-rendering: pixelated` to approximate how the icon looks on a
@@ -123,11 +190,17 @@ export const IconEditor = ({ value, onChange }: IconEditorProps) => {
   const [preview, setPreview] = useQueryState<PreviewMode>("preview", {
     defaultValue: "2",
     parse: (query) =>
-      query === "1" || query === "3" || query === "pixelated" ? query : "2",
+      query === "1" ||
+      query === "3" ||
+      query === "pixelated" ||
+      query === "rotated"
+        ? query
+        : "2",
     serialize: (value) => (value === "2" ? null : value) as string,
   });
   const strokeWidth = preview === "1" ? 1 : preview === "3" ? 3 : 2;
   const isPixelated = preview === "pixelated";
+  const isRotated = preview === "rotated";
 
   const onSelect = debounce((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { selectionStart, selectionEnd } = e.target;
@@ -204,6 +277,9 @@ export const IconEditor = ({ value, onChange }: IconEditorProps) => {
                 {option.value === "pixelated" && (
                   <Grid2x2Icon className="h-3.5 w-3.5" />
                 )}
+                {option.value === "rotated" && (
+                  <RotateCwIcon className="h-3.5 w-3.5" />
+                )}
                 {option.label}
               </Button>
             ))}
@@ -211,6 +287,8 @@ export const IconEditor = ({ value, onChange }: IconEditorProps) => {
         </div>
         {isPixelated ? (
           <PixelPreview value={nextValue || value} />
+        ) : isRotated ? (
+          <RotatedPreview value={nextValue || value} />
         ) : (
           <ContextMenu>
             <ContextMenuTrigger>

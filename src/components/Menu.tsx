@@ -31,6 +31,7 @@ import {
   MinimizeIcon,
   MoonIcon,
   RedoIcon,
+  RotateCwIcon,
   ScalingIcon,
   SunIcon,
   TextSelectionIcon,
@@ -69,6 +70,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { offify } from "@/lib/offify";
 import { flip } from "@/lib/flip";
+import { rotate } from "@/lib/rotate";
 import { format } from '@/lib/format'
 
 const useIsFullscreen = () => {
@@ -242,6 +244,13 @@ export const Menu = ({
             >
               <FlipVerticalIcon />
               Flip vertical
+            </MenubarItem>
+            <MenubarItem
+              onClick={() => setValue(rotate(value))}
+              className="gap-1.5"
+            >
+              <RotateCwIcon />
+              Rotate 90°
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem
